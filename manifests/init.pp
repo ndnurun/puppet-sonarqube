@@ -190,12 +190,32 @@ class sonarqube (
     ensure => directory,
   }
 
-  service { 'sonarqube':
-    ensure     => running,
-    name       => $service,
-    hasrestart => true,
-    hasstatus  => true,
-    enable     => true,
-    require    => File["/etc/init.d/${service}"],
+  if $::operatingsystem == 'Ubuntu' and
+    versioncmp($::operatingsystemrelease, '16.04') >= 0 {
+
+    # Install systemd unit for sonar
+
+    file { '/etc/systemd/system/sonar.service':
+        source => 'puppet:///modules/sonarqube/sonar_xenial.service',
+        require    => File["/etc/init.d/${service}"]
+    } ->
+
+    service { 'sonarqube':
+      ensure     => running,
+      name       => $service,
+      hasrestart => true,
+      hasstatus  => true,
+      enable     => true
+    }
+
+  } else {
+    service { 'sonarqube':
+      ensure     => running,
+      name       => $service,
+      hasrestart => true,
+      hasstatus  => true,
+      enable     => true,
+      require    => File["/etc/init.d/${service}"],
+    }
   }
 }
