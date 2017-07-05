@@ -190,9 +190,8 @@ class sonarqube (
     ensure => directory,
   }
 
-  if $::operatingsystem == 'Ubuntu' and
-    versioncmp($::operatingsystemrelease, '16.04') >= 0 {
-
+  if ($::operatingsystem == 'Ubuntu' and versioncmp($::operatingsystemrelease, '16.04') >= 0) or
+      ($::operatingsystem == 'Debian' and versioncmp($::operatingsystemrelease, '8') >= 0) {
     # Install systemd unit for sonar
 
     file { '/etc/systemd/system/sonar.service':
